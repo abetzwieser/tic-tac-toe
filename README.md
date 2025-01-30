@@ -1,6 +1,7 @@
 # tic-tac-toe
 
-###To Run:
+### To Run:
+
 ```
 cd app
 npm install

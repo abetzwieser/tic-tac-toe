@@ -1,11 +1,23 @@
 import { useState } from 'react';
 
 function Square({value, onSquareClick }) {
+  var styleSquare = formatSquare(value);
+  
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className="square" onClick={onSquareClick} style={styleSquare}>
       {value}
     </button>
   );
+}
+
+function formatSquare(value) {
+  var textColor = "";
+  if (value == "X") {
+    textColor = "lime";
+  } else if (value == "O") {
+    textColor = "red";
+  }
+  return {color: textColor};
 }
 
 export default function Board() {
