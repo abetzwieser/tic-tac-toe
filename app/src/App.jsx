@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
-function Square({value, onSquareClick }) {
-  var styleSquare = formatSquare(value);
+function Square({value, winner, onSquareClick }) {
+  var styleSquare = formatSquare(value, winner);
   
   return (
     <button className="square" onClick={onSquareClick} style={styleSquare}>
@@ -10,14 +10,27 @@ function Square({value, onSquareClick }) {
   );
 }
 
-function formatSquare(value) {
+function formatSquare(value, winner) {
   var textColor = "";
   if (value == "X") {
     textColor = "lime";
   } else if (value == "O") {
     textColor = "red";
   }
-  return {color: textColor};
+  var bgColor = "";
+  if (winner) {
+    bgColor = "white";
+  }
+
+  return {color:textColor, "background-color":bgColor};
+}
+
+function detWinner(squares) {
+  if (calculateWinner(squares) == null) {
+    return null;
+  } else {
+    return calculateWinner(squares)[0];
+  }
 }
 
 export default function Board() {
@@ -29,7 +42,7 @@ export default function Board() {
   const [xIsNext, setXIsNext] = useState(true);
   const [squares, setSquares] = useState(Array(9).fill(null));
 
-  const winner = calculateWinner(squares);
+  const winner = detWinner(squares);
   const tie = isATie(squares);
   const player = "X";
   const ai = "O";
@@ -50,7 +63,7 @@ export default function Board() {
   }
  
   function handleClick(i) {
-    if (squares[i] || calculateWinner(squares)) {
+    if (squares[i] || detWinner(squares)) {
       return;
     }
     
@@ -68,24 +81,39 @@ export default function Board() {
     setXIsNext(!xIsNext);
   }
 
+  function isAWinner(i) {
+    console.log(calculateWinner(squares));
+    if (calculateWinner(squares) == null){
+      return false;
+    }
+    else if (calculateWinner(squares)[1].includes(i)) {
+      console.log("hi?");
+      return true;
+      
+    }
+    else {
+      return false;
+    }
+  }
+
   return (
     <>
       <div className="gameboard">
       <div className="status">{status}</div>
       <div className="board-row"> 
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+        <Square value={squares[0]} winner={isAWinner(0)} onSquareClick={() => handleClick(0)} />
+        <Square value={squares[1]} winner={isAWinner(1)} onSquareClick={() => handleClick(1)} />
+        <Square value={squares[2]} winner={isAWinner(2)} onSquareClick={() => handleClick(2)} />
       </div>
       <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+        <Square value={squares[3]} winner={isAWinner(3)} onSquareClick={() => handleClick(3)} />
+        <Square value={squares[4]} winner={isAWinner(4)} onSquareClick={() => handleClick(4)} />
+        <Square value={squares[5]} winner={isAWinner(5)} onSquareClick={() => handleClick(5)} />
       </div>
       <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+        <Square value={squares[6]} winner={isAWinner(6)} onSquareClick={() => handleClick(6)} />
+        <Square value={squares[7]} winner={isAWinner(7)} onSquareClick={() => handleClick(7)} />
+        <Square value={squares[8]} winner={isAWinner(8)} onSquareClick={() => handleClick(8)} />
       </div>
       <div className="restart">
         <button onClick={clearState}>Restart</button>
@@ -110,7 +138,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return [squares[a], lines[i]];
     }
   }
   return null;
@@ -119,9 +147,9 @@ function calculateWinner(squares) {
 function minimax(squares, player) {
   let availableSpots = findSpots(squares);
 
-  if (calculateWinner(squares) == "X") {
+  if (detWinner(squares) == "X") {
     return {"score": -10}
-  } else if (calculateWinner(squares) == "O") {
+  } else if (detWinner(squares) == "O") {
     return {"score": 10};
   } else if (availableSpots.length === 0) {
     return {"score": 0};
