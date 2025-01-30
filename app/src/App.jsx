@@ -8,8 +8,6 @@ function Square({value, onSquareClick }) {
   );
 }
 
-
-
 export default function Board() {
   const clearState = () => {
     setXIsNext(initialBoard.xIsNext);
@@ -60,6 +58,7 @@ export default function Board() {
 
   return (
     <>
+      <div className="gameboard">
       <div className="status">{status}</div>
       <div className="board-row"> 
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
@@ -76,8 +75,9 @@ export default function Board() {
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
-      <div>
+      <div className="restart">
         <button onClick={clearState}>Restart</button>
+      </div>
       </div>
     </>
   );
@@ -167,12 +167,4 @@ function findSpots(squares) {
 
 function isATie(squares) {
   return findSpots(squares).length == 0 ? true : false;
-}
-
-function RestartBoard(onRestartBoardClick) {
-  return (
-    <button className="restart" onClick={onRestartBoardClick}>
-      Restart
-    </button>
-  );
 }
