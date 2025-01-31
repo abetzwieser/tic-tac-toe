@@ -1,16 +1,16 @@
 import { useState } from 'react';
 
-function Square({value, won, onSquareClick }) {
-  var style = styleSquare(value, won);
+function Tile({value, won, onTileClick }) {
+  var style = styleTile(value, won);
   
   return (
-    <button className="square" onClick={onSquareClick} style={style}>
+    <button className="tile" onClick={onTileClick} style={style}>
       {value}
     </button>
   );
 }
 
-function styleSquare(value, won) {
+function styleTile(value, won) {
   var textColor = "";
   var bgColor = "";
 
@@ -28,22 +28,22 @@ function styleSquare(value, won) {
   return {color:textColor, backgroundColor:bgColor};
 }
 
-export default function Board() {
+export default function Gameboard() {
   const clearState = () => {
-    setXIsNext(initialBoard.xIsNext);
-    setSquares(initialBoard.squares);
+    setPlayerIsNext(initialBoard.playerIsNext);
+    setBoard(initialBoard.board);
   }
 
   const initialBoard = {
-    xIsNext: true,
-    squares: Array(9).fill(null)
+    playerIsNext: true,
+    board: Array(9).fill(null)
   }
 
-  const [xIsNext, setXIsNext] = useState(true);
-  const [squares, setSquares] = useState(Array(9).fill(null));
+  const [playerIsNext, setPlayerIsNext] = useState(true);
+  const [board, setBoard] = useState(Array(9).fill(null));
 
-  const winner = whoWon(squares, gameWon(squares));
-  const tie = gameTie(squares);
+  const winner = whoWon(board, gameWon(board));
+  const tie = gameTie(board);
   const player = "X";
   const ai = "O";
 
@@ -54,30 +54,30 @@ export default function Board() {
   } else if (tie){
     status = "It's a tie!";
   } else {
-    status = "Next player: " + (xIsNext ? player : ai);
+    status = "Next player: " + (playerIsNext ? player : ai);
   }
  
   function handleClick(i) {
-    if (squares[i] || gameWon(squares)) {
+    if (board[i] || gameWon(board)) {
       return;
     }
     
-    const nextSquares = squares.slice(); 
-    nextSquares[i] = player;
+    const nextBoard = board.slice(); 
+    nextBoard[i] = player;
 
-    if (gameTie(squares)) {
+    if (gameTie(board)) {
       return;
     } else {
-      const miniMaxSquares = nextSquares.slice()
-      nextSquares[miniMax(miniMaxSquares, ai)["index"]] = ai;
+      const miniMaxBoard = nextBoard.slice()
+      nextBoard[miniMax(miniMaxBoard, ai)["index"]] = ai;
     }
 
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+    setBoard(nextBoard);
+    setPlayerIsNext(!playerIsNext);
   }
 
   function isAWinner(i) {
-    if (gameWon(squares) != null && gameWon(squares).includes(i)) {
+    if (gameWon(board) != null && gameWon(board).includes(i)) {
       return true;
     } else {
       return false;
@@ -89,19 +89,19 @@ export default function Board() {
       <div className="gameboard">
         <h1 className="status">{status}</h1>
         <div className="board-row"> 
-          <Square value={squares[0]} won={isAWinner(0)} onSquareClick={() => handleClick(0)} />
-          <Square value={squares[1]} won={isAWinner(1)} onSquareClick={() => handleClick(1)} />
-          <Square value={squares[2]} won={isAWinner(2)} onSquareClick={() => handleClick(2)} />
+          <Tile value={board[0]} won={isAWinner(0)} onTileClick={() => handleClick(0)} />
+          <Tile value={board[1]} won={isAWinner(1)} onTileClick={() => handleClick(1)} />
+          <Tile value={board[2]} won={isAWinner(2)} onTileClick={() => handleClick(2)} />
         </div>
         <div className="board-row">
-          <Square value={squares[3]} won={isAWinner(3)} onSquareClick={() => handleClick(3)} />
-          <Square value={squares[4]} won={isAWinner(4)} onSquareClick={() => handleClick(4)} />
-          <Square value={squares[5]} won={isAWinner(5)} onSquareClick={() => handleClick(5)} />
+          <Tile value={board[3]} won={isAWinner(3)} onTileClick={() => handleClick(3)} />
+          <Tile value={board[4]} won={isAWinner(4)} onTileClick={() => handleClick(4)} />
+          <Tile value={board[5]} won={isAWinner(5)} onTileClick={() => handleClick(5)} />
         </div>
         <div className="board-row">
-          <Square value={squares[6]} won={isAWinner(6)} onSquareClick={() => handleClick(6)} />
-          <Square value={squares[7]} won={isAWinner(7)} onSquareClick={() => handleClick(7)} />
-          <Square value={squares[8]} won={isAWinner(8)} onSquareClick={() => handleClick(8)} />
+          <Tile value={board[6]} won={isAWinner(6)} onTileClick={() => handleClick(6)} />
+          <Tile value={board[7]} won={isAWinner(7)} onTileClick={() => handleClick(7)} />
+          <Tile value={board[8]} won={isAWinner(8)} onTileClick={() => handleClick(8)} />
         </div>
         <div className="restart">
           <button onClick={clearState}>Restart</button>
@@ -111,12 +111,12 @@ export default function Board() {
   );
 }
 
-function gameTie(squares) {
-  return findSpots(squares).length == 0 ? true : false;
+function gameTie(board) {
+  return findSpots(board).length == 0 ? true : false;
 }
 
-function gameWon(squares) {
-  const lines = [
+function gameWon(board) {
+  const winningCombos = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -127,37 +127,37 @@ function gameWon(squares) {
     [2, 4, 6]
   ];
 
-  for (let i = 0; i < lines.length; i++) {
-    const [a, b, c] = lines[i];
-    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return lines[i];
+  for (let i = 0; i < winningCombos.length; i++) {
+    const [a, b, c] = winningCombos[i];
+    if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+      return winningCombos[i];
     }
   }
   return null;
 }
 
-function whoWon(squares, line) {
-  if (line == null) {
+function whoWon(board, winningCombo) {
+  if (winningCombo == null) {
     return null;
   } else {
-    return squares[line[0]];
+    return board[winningCombo[0]];
   }
 }
 
-function findSpots(squares) {
+function findSpots(board) {
   const spots = [];
-  for (var i = 0; i < squares.length; i++) {
-    if (squares[i] != "X" && squares[i] != "O") {
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] != "X" && board[i] != "O") {
       spots.push(i);
     }
   }
   return spots;
 }
 
-function miniMax(squares, turn) {
-  let availableSpots = findSpots(squares);
-  var line = gameWon(squares)
-  var winner = whoWon(squares, line);
+function miniMax(board, turn) {
+  let availableSpots = findSpots(board);
+  let line = gameWon(board)
+  let winner = whoWon(board, line);
 
   if (winner == "X") {
     return {"score": -10}
@@ -167,37 +167,37 @@ function miniMax(squares, turn) {
     return {"score": 0};
   }
 
-  var moves = [];
-  for (var i = 0; i < availableSpots.length; i++) {
+  let moves = [];
+  for (let i = 0; i < availableSpots.length; i++) {
     var move = { "index": -1, "score": -1 };
     move["index"] = availableSpots[i];
-    squares[availableSpots[i]] = turn;
+    board[availableSpots[i]] = turn;
 
     if (turn == "O") {
-      var result = miniMax(squares, "X");
+      var result = miniMax(board, "X");
       move["score"] = result["score"];
     } else {
-      var result = miniMax(squares, "O");
+      var result = miniMax(board, "O");
       move["score"] = result["score"];
     }
 
-    squares[availableSpots[i]] = move["index"];
+    board[availableSpots[i]] = move["index"];
 
     moves.push(move);
   }
 
-  var bestMove;
+  let bestMove;
   if (turn === "O") {
-    var bestScore = -10000;
-    for (var i = 0; i < moves.length; i++) {
+    var bestScore = -999;
+    for (let i = 0; i < moves.length; i++) {
       if (moves[i]["score"] > bestScore) {
         bestScore = moves[i]["score"];
         bestMove = i;
       }
     }
   } else {
-    var bestScore = 10000;
-    for (var i = 0; i < moves.length; i++) {
+    var bestScore = 999;
+    for (let i = 0; i < moves.length; i++) {
       if (moves[i]["score"] < bestScore) {
         bestScore = moves[i]["score"];
         bestMove = i;

@@ -37,11 +37,13 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-.square {
-  height: 100px;
-  width: 100px;
-  font-weight: 600;
+.page {
+  position: fixed;
   text-align: center;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  
 }
 
 .board-row, .gameboard {
@@ -57,17 +59,11 @@ button:focus-visible {
   min-height: 487px;
 }
 
-.page {
-  position: fixed;
+.tile {
+  height: 100px;
+  width: 100px;
+  font-weight: 600;
   text-align: center;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  
-}
-
-.restart {
-  margin-top: 2.5%;
 }
 
 .status {
@@ -75,3 +71,9 @@ button:focus-visible {
   min-width: 350px;
   margin-bottom: 10%;
 }
+
+.restart {
+  margin-top: 2.5%;
+}
+
+
