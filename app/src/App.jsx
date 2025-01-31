@@ -1,36 +1,31 @@
 import { useState } from 'react';
 
-function Square({value, winner, onSquareClick }) {
-  var styleSquare = formatSquare(value, winner);
+function Square({value, won, onSquareClick }) {
+  var style = styleSquare(value, won);
   
   return (
-    <button className="square" onClick={onSquareClick} style={styleSquare}>
+    <button className="square" onClick={onSquareClick} style={style}>
       {value}
     </button>
   );
 }
 
-function formatSquare(value, winner) {
+function styleSquare(value, won) {
   var textColor = "";
+  var bgColor = "";
+
   if (value == "X") {
-    textColor = "lime";
+    textColor = "deepskyblue";
   } else if (value == "O") {
     textColor = "red";
   }
-  var bgColor = "";
-  if (winner) {
-    bgColor = "white";
+  
+  if (won) {
+    bgColor = textColor;
+    textColor = "white";
   }
 
-  return {color:textColor, "background-color":bgColor};
-}
-
-function detWinner(squares) {
-  if (calculateWinner(squares) == null) {
-    return null;
-  } else {
-    return calculateWinner(squares)[0];
-  }
+  return {color:textColor, backgroundColor:bgColor};
 }
 
 export default function Board() {
@@ -39,42 +34,42 @@ export default function Board() {
     setSquares(initialBoard.squares);
   }
 
-  const [xIsNext, setXIsNext] = useState(true);
-  const [squares, setSquares] = useState(Array(9).fill(null));
-
-  const winner = detWinner(squares);
-  const tie = isATie(squares);
-  const player = "X";
-  const ai = "O";
-
   const initialBoard = {
     xIsNext: true,
     squares: Array(9).fill(null)
   }
+
+  const [xIsNext, setXIsNext] = useState(true);
+  const [squares, setSquares] = useState(Array(9).fill(null));
+
+  const winner = whoWon(squares, gameWon(squares));
+  const tie = gameTie(squares);
+  const player = "X";
+  const ai = "O";
 
   let status;
 
   if (winner) {
     status = "Winner: " + winner;
   } else if (tie){
-    status = "Tie!";
+    status = "It's a tie!";
   } else {
-    status = "Next player: " + (xIsNext ? "X":"O");
+    status = "Next player: " + (xIsNext ? player : ai);
   }
  
   function handleClick(i) {
-    if (squares[i] || detWinner(squares)) {
+    if (squares[i] || gameWon(squares)) {
       return;
     }
     
     const nextSquares = squares.slice(); 
     nextSquares[i] = player;
 
-    if (isATie(squares)) {
+    if (gameTie(squares)) {
       return;
     } else {
-      const minimaxsquares = nextSquares.slice()
-      nextSquares[minimax(minimaxsquares, "O")["index"]] = ai;
+      const miniMaxSquares = nextSquares.slice()
+      nextSquares[miniMax(miniMaxSquares, ai)["index"]] = ai;
     }
 
     setSquares(nextSquares);
@@ -82,16 +77,9 @@ export default function Board() {
   }
 
   function isAWinner(i) {
-    console.log(calculateWinner(squares));
-    if (calculateWinner(squares) == null){
-      return false;
-    }
-    else if (calculateWinner(squares)[1].includes(i)) {
-      console.log("hi?");
+    if (gameWon(squares) != null && gameWon(squares).includes(i)) {
       return true;
-      
-    }
-    else {
+    } else {
       return false;
     }
   }
@@ -99,31 +87,35 @@ export default function Board() {
   return (
     <>
       <div className="gameboard">
-      <div className="status">{status}</div>
-      <div className="board-row"> 
-        <Square value={squares[0]} winner={isAWinner(0)} onSquareClick={() => handleClick(0)} />
-        <Square value={squares[1]} winner={isAWinner(1)} onSquareClick={() => handleClick(1)} />
-        <Square value={squares[2]} winner={isAWinner(2)} onSquareClick={() => handleClick(2)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} winner={isAWinner(3)} onSquareClick={() => handleClick(3)} />
-        <Square value={squares[4]} winner={isAWinner(4)} onSquareClick={() => handleClick(4)} />
-        <Square value={squares[5]} winner={isAWinner(5)} onSquareClick={() => handleClick(5)} />
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} winner={isAWinner(6)} onSquareClick={() => handleClick(6)} />
-        <Square value={squares[7]} winner={isAWinner(7)} onSquareClick={() => handleClick(7)} />
-        <Square value={squares[8]} winner={isAWinner(8)} onSquareClick={() => handleClick(8)} />
-      </div>
-      <div className="restart">
-        <button onClick={clearState}>Restart</button>
-      </div>
+        <h1 className="status">{status}</h1>
+        <div className="board-row"> 
+          <Square value={squares[0]} won={isAWinner(0)} onSquareClick={() => handleClick(0)} />
+          <Square value={squares[1]} won={isAWinner(1)} onSquareClick={() => handleClick(1)} />
+          <Square value={squares[2]} won={isAWinner(2)} onSquareClick={() => handleClick(2)} />
+        </div>
+        <div className="board-row">
+          <Square value={squares[3]} won={isAWinner(3)} onSquareClick={() => handleClick(3)} />
+          <Square value={squares[4]} won={isAWinner(4)} onSquareClick={() => handleClick(4)} />
+          <Square value={squares[5]} won={isAWinner(5)} onSquareClick={() => handleClick(5)} />
+        </div>
+        <div className="board-row">
+          <Square value={squares[6]} won={isAWinner(6)} onSquareClick={() => handleClick(6)} />
+          <Square value={squares[7]} won={isAWinner(7)} onSquareClick={() => handleClick(7)} />
+          <Square value={squares[8]} won={isAWinner(8)} onSquareClick={() => handleClick(8)} />
+        </div>
+        <div className="restart">
+          <button onClick={clearState}>Restart</button>
+        </div>
       </div>
     </>
   );
 }
 
-function calculateWinner(squares) {
+function gameTie(squares) {
+  return findSpots(squares).length == 0 ? true : false;
+}
+
+function gameWon(squares) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -138,61 +130,18 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return [squares[a], lines[i]];
+      return lines[i];
     }
   }
   return null;
 }
 
-function minimax(squares, player) {
-  let availableSpots = findSpots(squares);
-
-  if (detWinner(squares) == "X") {
-    return {"score": -10}
-  } else if (detWinner(squares) == "O") {
-    return {"score": 10};
-  } else if (availableSpots.length === 0) {
-    return {"score": 0};
-  }
-
-  var moves = [];
-  for (var i = 0; i < availableSpots.length; i++) {
-    var move = { "index": -1, "score": -1 };
-    move["index"] = availableSpots[i];
-    squares[availableSpots[i]] = player;
-
-    if (player == "O") {
-      var result = minimax(squares, "X");
-      move["score"] = result["score"];
-    } else {
-      var result = minimax(squares, "O");
-      move["score"] = result["score"];
-    }
-
-    squares[availableSpots[i]] = move["index"];
-
-    moves.push(move);
-  }
-
-  var idealMove;
-  if (player === "O") {
-    var bestScore = -10000;
-    for (var i = 0; i < moves.length; i++) {
-      if (moves[i]["score"] > bestScore) {
-        bestScore = moves[i]["score"];
-        idealMove = i;
-      }
-    }
+function whoWon(squares, line) {
+  if (line == null) {
+    return null;
   } else {
-    var bestScore = 10000;
-    for (var i = 0; i < moves.length; i++) {
-      if (moves[i]["score"] < bestScore) {
-        bestScore = moves[i]["score"];
-        idealMove = i;
-      }
-    }
+    return squares[line[0]];
   }
-  return moves[idealMove];
 }
 
 function findSpots(squares) {
@@ -205,6 +154,55 @@ function findSpots(squares) {
   return spots;
 }
 
-function isATie(squares) {
-  return findSpots(squares).length == 0 ? true : false;
+function miniMax(squares, turn) {
+  let availableSpots = findSpots(squares);
+  var line = gameWon(squares)
+  var winner = whoWon(squares, line);
+
+  if (winner == "X") {
+    return {"score": -10}
+  } else if (winner == "O") {
+    return {"score": 10};
+  } else if (availableSpots.length === 0) {
+    return {"score": 0};
+  }
+
+  var moves = [];
+  for (var i = 0; i < availableSpots.length; i++) {
+    var move = { "index": -1, "score": -1 };
+    move["index"] = availableSpots[i];
+    squares[availableSpots[i]] = turn;
+
+    if (turn == "O") {
+      var result = miniMax(squares, "X");
+      move["score"] = result["score"];
+    } else {
+      var result = miniMax(squares, "O");
+      move["score"] = result["score"];
+    }
+
+    squares[availableSpots[i]] = move["index"];
+
+    moves.push(move);
+  }
+
+  var bestMove;
+  if (turn === "O") {
+    var bestScore = -10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i]["score"] > bestScore) {
+        bestScore = moves[i]["score"];
+        bestMove = i;
+      }
+    }
+  } else {
+    var bestScore = 10000;
+    for (var i = 0; i < moves.length; i++) {
+      if (moves[i]["score"] < bestScore) {
+        bestScore = moves[i]["score"];
+        bestMove = i;
+      }
+    }
+  }
+  return moves[bestMove];
 }

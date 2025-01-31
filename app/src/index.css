@@ -13,23 +13,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
@@ -47,57 +30,48 @@ button {
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  border-color: deepskyblue;
 }
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-
 .square {
-  height: 80px;
-  width: 80px;
+  height: 100px;
+  width: 100px;
   font-weight: 600;
   text-align: center;
 }
 
-.board-row {
+.board-row, .gameboard {
   display: flex;
   gap: 4px;
 }
 
 .gameboard {
-  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 4px;
+  margin-bottom: 50%;
+  min-height: 487px;
 }
 
 .page {
   position: fixed;
+  text-align: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  
 }
 
 .restart {
-  margin-top: 20px;
+  margin-top: 2.5%;
 }
 
 .status {
-  margin-bottom: 20px;
+  min-height: 60px;
+  min-width: 350px;
+  margin-bottom: 10%;
 }
